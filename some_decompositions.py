@@ -14,7 +14,7 @@ def decomposition_demo(input_matrix,input_labels,function="pca"):
                                                              input_labels,
                                                              train_size=2000)
     del dummy_matrix,dummy_labels
-    if function!="nmf":
+    if function not in ["nmf"]:
         #change image format into float, then reshpae every image into 1D array
         matrix=matrix.reshape((len(matrix),-1)).astype(numpy.float64)
         #re-center 1D array
@@ -46,7 +46,7 @@ def decomposition_demo(input_matrix,input_labels,function="pca"):
         plt.scatter(projection[:,0],projection[:,1],c=labels,s=5)
         return(plt.show())
 
-    #No need re-center data before perform NMF
+    #No need to re-center data before performing NMF
     elif function=="nmf":
         from sklearn.decomposition import NMF
         nmf=NMF(max_iter=400)
@@ -62,5 +62,5 @@ def decomposition_demo(input_matrix,input_labels,function="pca"):
 #choose one the following methods: "pca", "ica", "t-sne", "pcoa", "k-pca" or "nmf",
 #put it in the third arguement.
         
-decomposition_demo(Matrix,Labels,"nmf")
+decomposition_demo(Matrix,Labels,"ica")
 
