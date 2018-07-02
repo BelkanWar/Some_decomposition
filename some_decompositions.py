@@ -3,6 +3,7 @@ from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.datasets import fetch_mldata
+from mpl_toolkits.mplot3d import Axes3D
 mnist = fetch_mldata('MNIST original')
 
 Matrix=mnist.data
@@ -14,7 +15,7 @@ def decomposition_demo(input_matrix,input_labels,function="pca"):
                                                              input_labels,
                                                              train_size=2000)
     del dummy_matrix,dummy_labels
-    if function not in ["nmf"]:
+    if function not in ["nmf","pcoa"]:
         #change image format into float, then reshpae every image into 1D array
         matrix=matrix.reshape((len(matrix),-1)).astype(numpy.float64)
         #re-center 1D array
@@ -33,12 +34,6 @@ def decomposition_demo(input_matrix,input_labels,function="pca"):
             from sklearn.manifold import TSNE
             tsne=TSNE(n_components=2,n_iter=5000)
             projection=tsne.fit_transform(matrix_std)
-        elif function=="pcoa":
-            from sklearn.metrics.pairwise import pairwise_distances
-            from sklearn.manifold import MDS
-            matrix_std_dis=pairwise_distances(matrix_std,metric="braycurtis")
-            pcoa=MDS(max_iter=5000,dissimilarity="precomputed")
-            projection=pcoa.fit_transform(matrix_std_dis)
         elif function=="k-pca":
             from sklearn.decomposition import KernelPCA
             kpca=KernelPCA(n_components=2,kernel="cosine")
@@ -46,7 +41,7 @@ def decomposition_demo(input_matrix,input_labels,function="pca"):
         plt.scatter(projection[:,0],projection[:,1],c=labels,s=5)
         return(plt.show())
 
-    #No need to re-center data before performing NMF
+    #No need to re-center data before performing NMF and boolean pcoa
     elif function=="nmf":
         from sklearn.decomposition import NMF
         nmf=NMF(max_iter=400)
@@ -56,11 +51,23 @@ def decomposition_demo(input_matrix,input_labels,function="pca"):
             os.mkdir("NMF_test")
         for i in range(len(components)):
             imageio.imsave("NMF_test/"+str(i)+".png",components[i].reshape((28,28,1)).astype(numpy.uint8))
+    elif function=="pcoa":
+        from sklearn.metrics.pairwise import pairwise_distances
+        from sklearn.manifold import MDS
+        matrix_dis=pairwise_distances(matrix.astype(numpy.float64),metric="euclidean")
+        pcoa=MDS(n_components=3,max_iter=5000,dissimilarity="precomputed")
+        projection=pcoa.fit_transform(matrix_dis)
+        #plt.scatter(projection[:,0],projection[:,1],c=labels,s=5)
+        fig=plt.figure()
+        ax=fig.add_subplot(111,projection='3d')
+        ax.scatter(projection[:,0],projection[:,1],projection[:,2],
+                   c=labels,s=5)
+        return(plt.show())
     else:
         print("not a valid method")
             
 #choose one the following methods: "pca", "ica", "t-sne", "pcoa", "k-pca" or "nmf",
 #put it in the third arguement.
         
-decomposition_demo(Matrix,Labels,"ica")
+decomposition_demo(Matrix,Labels,"pcoa")
 
