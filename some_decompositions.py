@@ -2,12 +2,17 @@ import matplotlib,sklearn,numpy,os,imageio
 from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.datasets import fetch_mldata
+#from sklearn.datasets import fetch_mldata
+from tensorflow.examples.tutorials.mnist import input_data
 from mpl_toolkits.mplot3d import Axes3D
-mnist = fetch_mldata('MNIST original')
+#mnist = fetch_mldata('MNIST original')
+mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
 
-Matrix=mnist.data
-Labels=mnist.target
+#Matrix=mnist.data
+#Labels=mnist.target
+Matrix=mnist.test.images
+Labels=mnist.test.labels
+
 
 def decomposition_demo(input_matrix,input_labels,function="pca"):
     #randomly choose 2000 samples from the mnist dataset
@@ -43,10 +48,12 @@ def decomposition_demo(input_matrix,input_labels,function="pca"):
 
     #No need to re-center data before performing NMF and boolean pcoa
     elif function=="nmf":
+        matrix = matrix.T#
         from sklearn.decomposition import NMF
         nmf=NMF(max_iter=400)
         nmf_fit=nmf.fit(matrix)
         components=nmf_fit.components_
+        components = components.T#
         if os.path.exists("NMF_test/")==False:
             os.mkdir("NMF_test")
         for i in range(len(components)):
@@ -69,5 +76,5 @@ def decomposition_demo(input_matrix,input_labels,function="pca"):
 #choose one the following methods: "pca", "ica", "t-sne", "pcoa", "k-pca" or "nmf",
 #put it in the third arguement.
         
-decomposition_demo(Matrix,Labels,"pcoa")
+decomposition_demo(Matrix,Labels,"nmf")
 
